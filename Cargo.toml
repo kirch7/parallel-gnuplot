@@ -1,0 +1,13 @@
+[package]
+name = "parallel-gnuplot"
+version = "0.1.0"
+authors = ["Cassio Kirch <cassiokirch@gmail.com>"]
+
+[dependencies.blockcounter]
+git = "https://github.com/kirch7/blockcounter.git"
+branch = "devel"
+
+[dependencies]
+num_cpus = "*"
+threadpool = "*"
+
