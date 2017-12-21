@@ -3,11 +3,8 @@ name = "parallel-gnuplot"
 version = "0.1.1"
 authors = ["Cassio Kirch <cassiokirch@gmail.com>"]
 
-[dependencies.blockcounter]
-git = "https://github.com/kirch7/blockcounter.git"
-branch = "master"
-
 [dependencies]
+blockcounter = "*"
 num_cpus = "*"
 threadpool = "*"
 
