@@ -1,0 +1,46 @@
+[package]
+name = "parallel-gnuplot"
+version = "0.1.2"
+authors = ["Cassio Kirch <cassiokirch@gmail.com>"]
+
+[dependencies]
+blockcounter = "*"
+num_cpus = "*"
+threadpool = "*"
+
+[profile.dev]
+opt-level        = 0
+debug            = true
+lto              = false
+debug-assertions = true
+codegen-units    = 1
+
+[profile.release]
+opt-level        = 3
+debug            = false
+lto              = true
+debug-assertions = false
+codegen-units    = 1
+
+[profile.test]
+opt-level = 0
+debug = true
+lto = false
+debug-assertions = true
+codegen-units = 1
+
+[profile.bench]
+opt-level = 3
+debug = false
+lto = true
+debug-assertions = false
+codegen-units = 1
+
+[profile.doc]
+opt-level = 0
+debug = true
+lto = false
+debug-assertions = true
+codegen-units = 1
+
+
