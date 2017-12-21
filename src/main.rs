@@ -44,12 +44,26 @@ fn check_folder(path: &String) -> Result<(), String> {
     Ok(())
 }
 
+fn help(bin: &String) {
+    println!("Usage: {} data gp [tmp]", bin);
+}
+
+
 fn main() {
     const GNUPLOT_SEPARATOR_NO: usize = 2;
 
     let args: Vec<String> = std::env::args().collect();
+
+    for arg in &args {
+        if arg == "-h" || arg == "--help" || arg == "-help" {
+            help(&args[0]);
+            return ();
+        }
+    }
+    
     if args.len() != 3 && args.len() != 4 {
-        panic!("Call with: {} datafilename gnuplotfilename [tmpfolder]", args[0]);
+        help(&args[0]);
+        panic!("Usage: {} data gp [tmp]", args[0]);
     }
 
     let datafilename = &args[1];
@@ -67,11 +81,12 @@ fn main() {
         _      => { },
     }
 
-    //t datafile = get_read_file(datafilename);
-    //t indexes_no = blockcounter::blank_lines(GNUPLOT_SEPARATOR_NO, &datafile);
+    // let datafile = get_read_file(datafilename);
+    // let indexes_no = blockcounter::blank_lines(GNUPLOT_SEPARATOR_NO, &datafile);
+    // println!("{}", indexes_no);
     let datafile = get_read_file(datafilename);
-    let blocks     = blockcounter::Block::new(GNUPLOT_SEPARATOR_NO, &datafile);
-    let cpus_no = num_cpus::get();
+    let blocks   = blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, &datafile);
+    let cpus_no  = num_cpus::get();
 
     let pool = ThreadPool::new(cpus_no);
 
@@ -79,7 +94,6 @@ fn main() {
     for (index, block) in blocks.enumerate() {
         let tx = tx.clone();
         let index = index.clone();
-        //let datafilename = datafilename.clone();
         let gpfilename = gpfilename.clone();
         let tmpfoldername = tmpfoldername.clone();
         let block = block.clone();
@@ -87,9 +101,7 @@ fn main() {
         pool.execute(move || {
             let index_str = &index.to_string();
             let err_message = "Failed to execute GNUPlot with index {}.".to_string() + index_str;
-            //let index_argument = "INDEX=".to_string() + index_str;
             let tmpfilename = tmpfoldername + "/" + index_str;
-            //let data_argument = "DATAFILE=\"".to_string() + &tmpfilename + "\"";
             let mut tmpfile = get_write_file(&tmpfilename);
             
             match tmpfile.write_all(block.as_bytes()) {
@@ -100,13 +112,12 @@ fn main() {
                 Err(e) => { panic!("Error flushing {}: {}", tmpfilename, e.to_string()); },
                 Ok(()) => { },
             }
-            let status = Command::new("gnuplot")
+            let _status = Command::new("gnuplot")
                 .args(&["-e", &format!("INDEX={}", index_str)])
                 .args(&["-e", &format!("DATAFILE=\"{}\"", tmpfilename)])
                 .args(&[&gpfilename])
                 .status()
                 .expect(&err_message);
-            //println!("Status index {}: {}", index, status);
             match std::fs::remove_file(&tmpfilename) {
                 Err(e) => { panic!("Error removing {}: {}", tmpfilename, e.to_string()); },
                 Ok(()) => { },
