@@ -10,9 +10,9 @@ readme = "README.md"
 repository = "https://github.com/kirch7/parallel-gnuplot"
 
 [dependencies]
-blockcounter = "*"
-num_cpus = "*"
-threadpool = "*"
+blockcounter = "0.2.2"
+num_cpus = "1.7.0"
+threadpool = "1.7.1"
 
 [profile.dev]
 opt-level        = 0
