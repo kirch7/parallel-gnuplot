@@ -1,8 +1,8 @@
 [package]
 name = "parallel-gnuplot"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Cassio Kirch <cassiokirch@gmail.com>"]
-description = "Parallel calls to `GNUPlot`. Calls the same `GNUPlot` script once for each data file block. Please, note `GNUPlot` has copyrights, and `parallel-gnuplot` is not a modified version of `GNUPlot`."
+description = "Parallel calls to `GNUPlot`. Calls the same `GNUPlot` script once for each data file block."
 keywords = ["gnuplot", "parallel", "plot", "plotting"]
 categories = ["science"]
 license = "GPL-3.0"
