@@ -86,7 +86,7 @@ fn get_write_file(filename: &String) -> File {
 }
 
 fn check_folder(path: &String) -> Result<(), String> {
-    let file = get_folder(path);
+    let _file = get_folder(path);
     Ok(())
 }
 
