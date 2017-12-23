@@ -14,6 +14,12 @@ and `parallel-gnuplot` is <strong>not</strong> a modified version of `GNUPlot`.
 # Usage
 `parallel-gnuplot datafilename gpfilename [tmpdirectory]`
 
+or
+
+`cargo run --release -- datafilename gpfilename [tmpdirectory]`
+
+where `[tmpdirectory]` is optional.
+
 # Example
 
 data.txt:
@@ -50,5 +56,17 @@ set output sprintf("%d", INDEX).'.png'
 plot DATAFILE with lp lw 2 pt 7 ps 3 title sprintf("Block %d", INDEX)
 ```
 
-You can call: `parallel-gnuplot ./data.txt ./script.gp ./`
+You can call:
+  `parallel-gnuplot ./data.txt ./script.gp`
+  or
+  `cargo run --release -- ./data.txt ./script.gp`
 
+# Features
+<ul>
+  <li>Tested with the Operating Systems:
+  <ul>
+    <li><em>MS Windows</em> (works since v0.1.4),</li>
+    <li><em>GNU/Linux</em>.</li>
+    <li>(Let me know if works in other OSs.)</li>
+  </ul>
+</ul>
