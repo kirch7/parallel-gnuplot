@@ -61,13 +61,20 @@ extern crate threadpool;
 use threadpool::ThreadPool;
 use std::sync::mpsc::channel;
 use std::process::Command;
-use std::fs::File;
+use std::fs::{File, ReadDir};
 use std::io::Write;
 
 fn get_read_file(filename: &String) -> File {
     match File::open(filename) {
         Ok(file) => file,
         Err(e)   => { panic!("Error opening {}: {}", filename, e.to_string()); },
+    }
+}
+
+fn get_folder(foldername: &String) -> ReadDir {
+    match std::fs::read_dir(&foldername) {
+        Ok(dir) => dir,
+        Err(e)  => { panic!("Error opening {}: {}", foldername, e.to_string()); },
     }
 }
 
@@ -79,24 +86,7 @@ fn get_write_file(filename: &String) -> File {
 }
 
 fn check_folder(path: &String) -> Result<(), String> {
-    let file = get_read_file(path);
-    let metadata = match file.metadata() {
-        Ok(metadata) => metadata,
-        Err(e)       => {
-            let message = "Error getting ".to_string() + path + ": " + &e.to_string();
-            return Err(message);
-        },
-    };
-    if !metadata.is_dir() {
-        let message = path.clone() + " is not a directory.";
-        return Err(message);
-    }
-
-    if metadata.permissions().readonly() {
-        let message = path.clone() + "is readonly";
-        return Err(message);
-    }
-
+    let file = get_folder(path);
     Ok(())
 }
 
@@ -126,12 +116,14 @@ fn main() {
     let gpfilename = &args[2];
     let tmpfoldername = {
         if args.len() > 3 {
-            &args[3]
+            args[3].clone()
         } else {
-            "/tmp/"
+            std::env::temp_dir()
+                .into_os_string()
+                .into_string()
+                .unwrap()
         }
     };
-    let tmpfoldername = tmpfoldername.to_string();
     match check_folder(&tmpfoldername) {
         Err(e) => { panic!(e); },
         _      => { },
