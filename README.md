@@ -1,18 +1,18 @@
 # parallel-gnuplot
 Parallel calls to <a href="http://www.gnuplot.info/">GNUPlot</a>.
-Calls the same <tt>GNUPlot</tt> script once for each data file block.
-Please, note <tt>GNUPlot</tt> has copyrights,
-and <tt>parallel-gnuplot</tt> is <strong>not</strong> a modified version of <tt>GNUPlot</tt>.
+Calls the same `GNUPlot` script once for each data file block.
+Please, note `GNUPlot` has copyrights,
+and `parallel-gnuplot` is <strong>not</strong> a modified version of `GNUPlot`.
 
 # GNUPlot variables
-<tt>parallel-gnuplot</tt> sets some <tt>GNUPlot</tt> variables:
+`parallel-gnuplot` sets some `GNUPlot` variables:
 <ul>
-<li><tt>INDEX</tt>: block index, starting at <tt>0</tt>;</li>
-<li><tt>DATAFILE</tt>: path of a data file containing only a single block.</li>
+<li>`INDEX`: block index, starting at `0`;</li>
+<li>`DATAFILE`: path of a data file containing only a single block.</li>
 </ul>
 
 # Usage
-<tt>parallel-gnuplot datafilename gpfilename [tmpdirectory]</tt>
+`parallel-gnuplot datafilename gpfilename [tmpdirectory]`
 
 # Example
 
@@ -50,5 +50,5 @@ set output sprintf("%d", INDEX).'.png'
 plot DATAFILE with lp lw 2 pt 7 ps 3 title sprintf("Block %d", INDEX)
 ```
 
-You can call: <tt>parallel-gnuplot ./data.txt ./script.gp .</tt>
+You can call: `parallel-gnuplot ./data.txt ./script.gp ./`
 
