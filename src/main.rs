@@ -126,12 +126,14 @@ fn main() {
     let gpfilename = &args[2];
     let tmpfoldername = {
         if args.len() > 3 {
-            &args[3]
+            args[3].clone()
         } else {
-            "/tmp/"
+            std::env::temp_dir()
+                .into_os_string()
+                .into_string()
+                .unwrap()
         }
     };
-    let tmpfoldername = tmpfoldername.to_string();
     match check_folder(&tmpfoldername) {
         Err(e) => { panic!(e); },
         _      => { },
