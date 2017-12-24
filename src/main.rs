@@ -45,7 +45,11 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
 
     for arg in &args {
-        if arg == "-h" || arg == "--help" || arg == "-help" {
+        if arg == "-h" || arg == "--help" {
+            help(&args[0]);
+            return ();
+        } else if arg == "-help" {
+            println!("-help is obsolete. Please, use --help instead.");
             help(&args[0]);
             return ();
         }
