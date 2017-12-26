@@ -16,6 +16,10 @@ and `parallel-gnuplot` is <strong>not</strong> a modified version of `GNUPlot`.
 
 or
 
+`program_outputing_data | parallel-gnuplot gpfilename [tmpdirectory]`
+
+or
+
 `cargo run --release -- datafilename gpfilename [tmpdirectory]`
 
 where `[tmpdirectory]` is optional.
@@ -60,6 +64,8 @@ You can call:
   `parallel-gnuplot ./data.txt ./script.gp`
   or
   `cargo run --release -- ./data.txt ./script.gp`
+  or something like
+  `cat ./data.txt | parallel-gnuplot ./script.gp`
 
 # Features
 <ul>
@@ -69,4 +75,5 @@ You can call:
     <li><em>GNU/Linux</em>.</li>
     <li>(Let me know if works in other OSs.)</li>
   </ul>
+  <li>Can receive data through pipe (since v0.1.5).</li>
 </ul>
