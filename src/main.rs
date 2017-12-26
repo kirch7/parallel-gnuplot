@@ -1,68 +1,11 @@
-/*!
-Parallel calls to <a href="http://www.gnuplot.info/">GNUPlot</a>.
-Calls the same <tt>GNUPlot</tt> script once for each data file block.
-Please, note <tt>GNUPlot</tt> has copyrights,
-and <tt>parallel-gnuplot</tt> is <strong>not</strong> a modified version of <tt>GNUPlot</tt>.
-
-# GNUPlot variables
-<tt>parallel-gnuplot</tt> sets some <tt>GNUPlot</tt> variables:
-<ul>
-<li><tt>INDEX</tt>: block index, starting at <tt>0</tt>;</li>
-<li><tt>DATAFILE</tt>: path of a data file containing only a single block.</li>
-</ul>
-
-# Usage
-<tt>parallel-gnuplot datafilename gpfilename [tmpdirectory]</tt>
-
-# Example
-
-data.txt:
-
-```plain
-# block 0:
-0 0
-1 1
-2 2
-3 3
-4 4
-
-
-# block 1:
-0 0
-1 2
-2 4
-3 6
-4 8
-```
-
-script.gp:
-
-```gnuplot
-set terminal png size 800,600
-set encoding utf8
-
-set xrange [0:4]
-set yrange [0:8]
-
-set key left top
-set output sprintf("%d", INDEX).'.png'
-
-plot DATAFILE with lp lw 2 pt 7 ps 3 title sprintf("Block %d", INDEX)
-```
-
-You can call: <tt>parallel-gnuplot ./data.txt ./script.gp .</tt>
-
- */
-
+#[macro_use] extern crate clap;
 extern crate blockcounter;
 extern crate num_cpus;
 extern crate threadpool;
+extern crate isatty;
 
-use threadpool::ThreadPool;
-use std::sync::mpsc::channel;
-use std::process::Command;
 use std::fs::{File, ReadDir};
-use std::io::Write;
+
 
 fn get_read_file(filename: &String) -> File {
     match File::open(filename) {
@@ -90,56 +33,20 @@ fn check_folder(path: &String) -> Result<(), String> {
     Ok(())
 }
 
-fn help(bin: &String) {
-    println!("Usage: {} data gp [tmp]", bin);
-}
+fn run<S>(iter: blockcounter::Blocks<S>, gpfilename: &String, tmpfoldername: &String)
+    where std::io::BufReader<S> : std::io::BufRead {
 
-
-fn main() {
-    const GNUPLOT_SEPARATOR_NO: usize = 2;
-
-    let args: Vec<String> = std::env::args().collect();
-
-    for arg in &args {
-        if arg == "-h" || arg == "--help" || arg == "-help" {
-            help(&args[0]);
-            return ();
-        }
-    }
+    use threadpool::ThreadPool;
+    use std::sync::mpsc::channel;
+    use std::process::Command;
+    use std::io::Write;
     
-    if args.len() != 3 && args.len() != 4 {
-        help(&args[0]);
-        panic!("Usage: {} data gp [tmp]", args[0]);
-    }
-
-    let datafilename = &args[1];
-    let gpfilename = &args[2];
-    let tmpfoldername = {
-        if args.len() > 3 {
-            args[3].clone()
-        } else {
-            std::env::temp_dir()
-                .into_os_string()
-                .into_string()
-                .unwrap()
-        }
-    };
-    match check_folder(&tmpfoldername) {
-        Err(e) => { panic!(e); },
-        _      => { },
-    }
-
-    // let datafile = get_read_file(datafilename);
-    // let indexes_no = blockcounter::blank_lines(GNUPLOT_SEPARATOR_NO, &datafile);
-    // println!("{}", indexes_no);
-    let datafile = get_read_file(datafilename);
-    let blocks   = blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, &datafile);
     let cpus_no  = num_cpus::get();
-
+    
     let pool = ThreadPool::new(cpus_no);
 
     let (tx, _rx) = channel();
-    for (index, block) in blocks.enumerate() {
+    for (index, block) in iter.enumerate() {
         let tx = tx.clone();
         let index = index.clone();
         let gpfilename = gpfilename.clone();
@@ -176,4 +83,61 @@ fn main() {
     }
 
     pool.join();
+
+}
+
+fn main() {
+    let filtered_yaml = load_yaml!("en.yml");
+    let base_yaml     = load_yaml!("en_base.yml");
+
+    let is_a_tty = isatty::stdin_isatty();
+    let args_matches = match is_a_tty {
+        true  => clap::App::from_yaml(base_yaml),
+        false => clap::App::from_yaml(filtered_yaml),
+    };
+    let args_matches = args_matches
+        .version(crate_version!())
+        .author(crate_authors!())
+        .get_matches();
+    let datafilename = match is_a_tty {
+        true  => Some(args_matches
+                      .value_of("DATA")
+                      .unwrap()),
+        false => None,
+    };
+    
+    const GNUPLOT_SEPARATOR_NO: usize = 2;
+
+    let gpfilename = args_matches
+        .value_of("GNUPLOTSCRIPT")
+        .unwrap()
+        .to_string();
+    let tmpfoldername = args_matches
+        .value_of("TMPFOLDER")
+        .unwrap_or(&std::env::temp_dir()
+                   .into_os_string()
+                   .into_string()
+                   .unwrap())
+        .to_string();
+    match check_folder(&tmpfoldername) {
+        Err(e) => { panic!(e); },
+        _      => { },
+    }
+
+    match is_a_tty {
+        true  => {
+            let datafile = get_read_file(&datafilename.unwrap().to_string());
+            run(blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, &datafile), &gpfilename, &tmpfoldername);
+        },
+        false => {
+            use std::io::Read;
+            let stdin_ = std::io::stdin();
+            let mut s = String::new();
+            let _ = stdin_
+                .lock()
+                .read_to_string(&mut s)
+                .unwrap();
+            run(blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, s.as_bytes()), &gpfilename, &tmpfoldername);
+        },
+    };
 }
