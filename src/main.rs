@@ -33,6 +33,44 @@ fn check_folder(path: &String) -> Result<(), String> {
     Ok(())
 }
 
+fn is_gp_script_ok(gpfilename: &String) -> bool {
+    use std::io::{BufRead, BufReader};
+    use std::collections::HashMap;
+
+    const GP_VARS: &[&str] = &["INDEX", "DATAFILE"];
+    let mut hash = HashMap::new();
+    
+    let file = get_read_file(gpfilename);
+    let file = BufReader::new(file);
+    for line in file.lines() {
+        let line = line.unwrap();
+        for gp_var in GP_VARS {
+            if line.contains(gp_var) {
+                let _ = hash
+                    .entry(gp_var)
+                    .or_insert(true);
+            }
+        }
+    }
+
+    for gp_var in GP_VARS {
+        let _ = hash
+            .entry(gp_var)
+            .or_insert(false);
+    }
+
+    
+    let mut ok = true;
+    for (gp_var, has) in hash {
+        if !has {
+            eprintln!("Maybe you want to use {} in {}.", gp_var, gpfilename);
+            ok = false
+        }
+    }
+
+    ok
+}
+
 fn run<S>(iter: blockcounter::Blocks<S>, gpfilename: &String, tmpfoldername: &String)
     where std::io::BufReader<S> : std::io::BufRead {
 
@@ -112,6 +150,7 @@ fn main() {
         .value_of("GNUPLOTSCRIPT")
         .unwrap()
         .to_string();
+    let _ = is_gp_script_ok(&gpfilename);
     let tmpfoldername = args_matches
         .value_of("TMPFOLDER")
         .unwrap_or(&std::env::temp_dir()
