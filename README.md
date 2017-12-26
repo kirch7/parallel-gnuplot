@@ -1,5 +1,6 @@
 # parallel-gnuplot
 [![Version info](https://img.shields.io/crates/v/parallel-gnuplot.svg)](https://crates.io/crates/parallel-gnuplot)
+[![Build Status](https://travis-ci.org/kirch7/parallel-gnuplot.svg?branch=master)](https://travis-ci.org/kirch7/parallel-gnuplot)
 
 Parallel calls to <a href="http://www.gnuplot.info/">GNUPlot</a>.
 Calls the same `GNUPlot` script once for each data file block.
@@ -9,8 +10,8 @@ and `parallel-gnuplot` is <strong>not</strong> a modified version of `GNUPlot`.
 ### GNUPlot variables
 `parallel-gnuplot` sets some `GNUPlot` variables:
 <ul>
-<li>`INDEX`: block index, starting at `0`;</li>
-<li>`DATAFILE`: path of a data file containing only a single block.</li>
+<li> <tt>INDEX</tt>: block index, starting at <tt>0</tt>; </li>
+<li> <tt>DATAFILE</tt>: path of a data file containing only a single block. </li>
 </ul>
 
 ### Usage
@@ -78,4 +79,5 @@ You can call:
     <li>(Let me know if works in other OSs.)</li>
   </ul>
   <li>Can receive data through pipe (since v0.1.5).</li>
-</ul>
+  <li>Check vality of script (since v0.1.6).</li>
+</Ul>
