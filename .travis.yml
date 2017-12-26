@@ -1,0 +1,20 @@
+sudo: false
+
+language: rust
+
+cache: cargo
+
+rust:
+  - stable
+
+os:
+  - linux
+  - osx
+  - windows
+
+branches:
+  only: master
+
+notifications:
+  email: cassiokirch@gmail.com
+on_success: never
