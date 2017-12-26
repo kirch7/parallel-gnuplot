@@ -1,4 +1,6 @@
 # parallel-gnuplot
+[![Version info](https://img.shields.io/crates/v/parallel-gnuplot.svg)](https://crates.io/crates/paralle-gnuplot)
+
 Parallel calls to <a href="http://www.gnuplot.info/">GNUPlot</a>.
 Calls the same `GNUPlot` script once for each data file block.
 Please, note `GNUPlot` has copyrights,
