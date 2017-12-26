@@ -1,17 +1,19 @@
 # parallel-gnuplot
+[![Version info](https://img.shields.io/crates/v/parallel-gnuplot.svg)](https://crates.io/crates/parallel-gnuplot)
+
 Parallel calls to <a href="http://www.gnuplot.info/">GNUPlot</a>.
 Calls the same `GNUPlot` script once for each data file block.
 Please, note `GNUPlot` has copyrights,
 and `parallel-gnuplot` is <strong>not</strong> a modified version of `GNUPlot`.
 
-# GNUPlot variables
+### GNUPlot variables
 `parallel-gnuplot` sets some `GNUPlot` variables:
 <ul>
 <li>`INDEX`: block index, starting at `0`;</li>
 <li>`DATAFILE`: path of a data file containing only a single block.</li>
 </ul>
 
-# Usage
+### Usage
 `parallel-gnuplot datafilename gpfilename [tmpdirectory]`
 
 or
@@ -24,7 +26,7 @@ or
 
 where `[tmpdirectory]` is optional.
 
-# Example
+### Example
 
 data.txt:
 
@@ -67,7 +69,7 @@ You can call:
   or something like
   `cat ./data.txt | parallel-gnuplot ./script.gp`
 
-# Features
+### Features
 <ul>
   <li>Tested with the Operating Systems:
   <ul>
