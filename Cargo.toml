@@ -8,11 +8,18 @@ categories = ["science", "command-line-utilities"]
 license = "GPL-3.0"
 readme = "README.md"
 repository = "https://github.com/kirch7/parallel-gnuplot"
+build = "src/build.rs"
+
+[build-dependencies]
+yaml-rust = "0.4.0"
+linked-hash-map = "0.5.0"
 
 [dependencies]
 blockcounter = "0.2.2"
 num_cpus = "1.7.0"
 threadpool = "1.7.1"
+isatty = "0.1.6"
+clap = { version = "2.29.0", features = ["yaml"] }
 
 [profile.dev]
 opt-level        = 0
