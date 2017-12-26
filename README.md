@@ -78,4 +78,5 @@ You can call:
     <li>(Let me know if works in other OSs.)</li>
   </ul>
   <li>Can receive data through pipe (since v0.1.5).</li>
-</ul>
+  <li>Check vality of script (since v0.1.6).</li>
+</Ul>
