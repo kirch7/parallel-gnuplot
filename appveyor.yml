@@ -32,5 +32,8 @@ notifications:
     on_build_failure: true
     on_build_status_changed: true
 
+build: false
+
 test_script:
   - cargo test --verbose --all
+  - cargo build --verbose --all
