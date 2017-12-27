@@ -6,7 +6,6 @@ extern crate isatty;
 
 use std::fs::{File, ReadDir};
 
-
 fn get_read_file(filename: &String) -> File {
     match File::open(filename) {
         Ok(file) => file,
@@ -124,11 +123,23 @@ fn run<S>(iter: blockcounter::Blocks<S>, gpfilename: &String, tmpfoldername: &St
 
 }
 
+#[cfg(not(windows))]
+#[inline(always)]
+fn stdin_isatty() -> bool {
+    isatty::stdin_isatty()
+}
+
+#[cfg(windows)]
+#[inline(always)]
+fn stdin_isatty() -> bool {
+    true
+}
+
 fn main() {
     let filtered_yaml = load_yaml!("en.yml");
     let base_yaml     = load_yaml!("en_base.yml");
 
-    let is_a_tty = isatty::stdin_isatty();
+    let is_a_tty = stdin_isatty();
     let args_matches = match is_a_tty {
         true  => clap::App::from_yaml(base_yaml),
         false => clap::App::from_yaml(filtered_yaml),
