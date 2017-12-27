@@ -139,7 +139,7 @@ fn main() {
     let filtered_yaml = load_yaml!("en.yml");
     let base_yaml     = load_yaml!("en_base.yml");
 
-    let is_a_tty = isatty::stdin_isatty();
+    let is_a_tty = stdin_isatty();
     let args_matches = match is_a_tty {
         true  => clap::App::from_yaml(base_yaml),
         false => clap::App::from_yaml(filtered_yaml),
