@@ -6,7 +6,6 @@ extern crate isatty;
 
 use std::fs::{File, ReadDir};
 
-
 fn get_read_file(filename: &String) -> File {
     match File::open(filename) {
         Ok(file) => file,
@@ -122,6 +121,18 @@ fn run<S>(iter: blockcounter::Blocks<S>, gpfilename: &String, tmpfoldername: &St
 
     pool.join();
 
+}
+
+#[cfg(not(windows))]
+#[inline(always)]
+fn stdin_isatty() -> bool {
+    isatty::stdin_isatty()
+}
+
+#[cfg(windows)]
+#[inline(always)]
+fn stdin_isatty() -> bool {
+    true
 }
 
 fn main() {
