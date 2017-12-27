@@ -2,6 +2,9 @@
 #   only:
 #     - master
 
+environment:
+  - TARGET: x86_64-pc-windows-gnu
+
 platform: Any CPU
 
 notifications:
