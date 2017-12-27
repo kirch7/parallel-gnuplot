@@ -1,6 +1,6 @@
 [package]
 name = "parallel-gnuplot"
-version = "0.1.6"
+version = "0.1.7"
 authors = ["Cassio Kirch <cassiokirch@gmail.com>"]
 description = "Parallel calls to GNUPlot. Calls the same GNUPlot script once for each data file block."
 keywords = ["gnuplot", "parallel", "plot", "plotting"]
@@ -15,7 +15,7 @@ yaml-rust = "0.4.0"
 linked-hash-map = "0.5.0"
 
 [dependencies]
-blockcounter = "0.2.2"
+blockcounter = "0.2.3"
 num_cpus = "1.7.0"
 threadpool = "1.7.1"
 isatty = "0.1.6"
