@@ -1,6 +1,7 @@
 # parallel-gnuplot
 [![Version info](https://img.shields.io/crates/v/parallel-gnuplot.svg)](https://crates.io/crates/parallel-gnuplot)
 [![Build Status](https://travis-ci.org/kirch7/parallel-gnuplot.svg?branch=master)](https://travis-ci.org/kirch7/parallel-gnuplot)
+[![Build status](https://ci.appveyor.com/api/projects/status/9ipxmpbme70mgi2j/branch/master?svg=true)](https://ci.appveyor.com/project/kirch7/parallel-gnuplot/branch/master)
 
 Parallel calls to <a href="http://www.gnuplot.info/">GNUPlot</a>.
 Calls the same `GNUPlot` script once for each data file block.
