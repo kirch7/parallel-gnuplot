@@ -70,7 +70,7 @@ fn is_gp_script_ok(gpfilename: &String) -> bool {
     ok
 }
 
-fn run<S>(iter: blockcounter::Blocks<S>, gpfilename: &String, tmpfoldername: &String, jobs: usize)
+fn run<S>(iter: blockcounter::Blocks<S>, gpfilename: &Option<String>, tmpfoldername: &String, jobs: usize, do_delete: bool)
     where std::io::BufReader<S> : std::io::BufRead {
 
     use threadpool::ThreadPool;
@@ -78,8 +78,9 @@ fn run<S>(iter: blockcounter::Blocks<S>, gpfilename: &String, tmpfoldername: &St
     use std::process::Command;
     use std::io::Write;
     
-    let pool = ThreadPool::new(jobs);
+    let mut do_delete = do_delete;
 
+    let pool = ThreadPool::new(jobs);
     let (tx, _rx) = channel();
     for (index, block) in iter.enumerate() {
         let tx = tx.clone();
@@ -102,15 +103,21 @@ fn run<S>(iter: blockcounter::Blocks<S>, gpfilename: &String, tmpfoldername: &St
                 Err(e) => { panic!("Error flushing {}: {}", tmpfilename, e.to_string()); },
                 Ok(()) => { },
             }
-            let _status = Command::new("gnuplot")
-                .args(&["-e", &format!("INDEX={}", index_str)])
-                .args(&["-e", &format!("DATAFILE=\"{}\"", tmpfilename)])
-                .args(&[&gpfilename])
-                .status()
-                .expect(&err_message);
-            match std::fs::remove_file(&tmpfilename) {
-                Err(e) => { panic!("Error removing {}: {}", tmpfilename, e.to_string()); },
-                Ok(()) => { },
+            if let Some(gpfilename) = gpfilename {
+                let _status = Command::new("gnuplot")
+                    .args(&["-e", &format!("INDEX={}", index_str)])
+                    .args(&["-e", &format!("DATAFILE=\"{}\"", tmpfilename)])
+                    .args(&[&gpfilename])
+                    .status()
+                    .expect(&err_message);
+            } else {
+                do_delete = false;
+            }
+            if do_delete {
+                match std::fs::remove_file(&tmpfilename) {
+                    Err(e) => { panic!("Error removing {}: {}", tmpfilename, e.to_string()); },
+                    Ok(()) => { },
+                }
             }
             
             tx.send(()).expect("Channel will be there waiting for the pool");
@@ -155,17 +162,49 @@ fn main() {
     
     const GNUPLOT_SEPARATOR_NO: usize = 2;
 
-    let gpfilename = args_matches
-        .value_of("GNUPLOTSCRIPT")
-        .unwrap()
-        .to_string();
-    let _ = is_gp_script_ok(&gpfilename);
+    let know = args_matches
+        .is_present("KNOW");
+    
+    let gpfilename = match args_matches.is_present("GNUPLOTSCRIPT") {
+        true  => {
+            let gp = args_matches
+                .value_of("GNUPLOTSCRIPT")
+                .unwrap()
+                .to_string();
+            let _ = is_gp_script_ok(&gp);
+            Some(gp)
+        },
+        false => {
+            if !know {
+                eprintln!("You skipped GNUplot script name. I will continue after a while.");
+                std::thread::sleep(std::time::Duration::from_secs(7));
+            } else {
+                eprintln!("You skipped GNUplot script name.");
+            }
+            None
+        },
+    };
+
+    let do_delete = !args_matches
+        .is_present("KEEPDATA");
+    
     let tmpfoldername = args_matches
         .value_of("TMPFOLDER")
-        .unwrap_or(&std::env::temp_dir()
-                   .into_os_string()
-                   .into_string()
-                   .unwrap())
+        .unwrap_or({
+            if !do_delete {
+                if !know {
+                    eprintln!("You are using default temporary folder. I will continue after a while.");
+                    std::thread::sleep(std::time::Duration::from_secs(7));
+                } else {
+                    eprintln!("You are using default temporary folder.");
+                }
+            }
+            
+            &std::env::temp_dir()
+                .into_os_string()
+                .into_string()
+                .unwrap()
+        })
         .to_string();
     match check_folder(&tmpfoldername) {
         Err(e) => { panic!(e); },
@@ -176,18 +215,22 @@ fn main() {
         Some(n) => {
             let jobs_no = n.parse::<usize>().unwrap();
             if jobs_no > num_cpus::get() {
-                eprintln!("You are using too many threads. I will continue after a while.");
-                std::thread::sleep(std::time::Duration::from_secs(7));
+                if !know {
+                    eprintln!("You are using too many threads. I will continue after a while.");
+                    std::thread::sleep(std::time::Duration::from_secs(7));
+                } else {
+                    eprintln!("You are using too many threads.");
+                }
             }
             jobs_no
         },
         None    => num_cpus::get(),
     };
-    
+
     match is_a_tty {
         true  => {
             let datafile = get_read_file(&datafilename.unwrap().to_string());
-            run(blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, &datafile), &gpfilename, &tmpfoldername, jobs_no);
+            run(blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, &datafile), &gpfilename, &tmpfoldername, jobs_no, do_delete);
         },
         false => {
             use std::io::Read;
@@ -197,7 +240,7 @@ fn main() {
                 .lock()
                 .read_to_string(&mut s)
                 .unwrap();
-            run(blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, s.as_bytes()), &gpfilename, &tmpfoldername, jobs_no);
+            run(blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, s.as_bytes()), &gpfilename, &tmpfoldername, jobs_no, do_delete);
         },
     };
 }
