@@ -70,7 +70,7 @@ fn is_gp_script_ok(gpfilename: &String) -> bool {
     ok
 }
 
-fn run<S>(iter: blockcounter::Blocks<S>, gpfilename: &String, tmpfoldername: &String)
+fn run<S>(iter: blockcounter::Blocks<S>, gpfilename: &String, tmpfoldername: &String, jobs: usize)
     where std::io::BufReader<S> : std::io::BufRead {
 
     use threadpool::ThreadPool;
@@ -78,9 +78,7 @@ fn run<S>(iter: blockcounter::Blocks<S>, gpfilename: &String, tmpfoldername: &St
     use std::process::Command;
     use std::io::Write;
     
-    let cpus_no  = num_cpus::get();
-    
-    let pool = ThreadPool::new(cpus_no);
+    let pool = ThreadPool::new(jobs);
 
     let (tx, _rx) = channel();
     for (index, block) in iter.enumerate() {
@@ -174,10 +172,22 @@ fn main() {
         _      => { },
     }
 
+    let jobs_no = match args_matches.value_of("JOBS") {
+        Some(n) => {
+            let jobs_no = n.parse::<usize>().unwrap();
+            if jobs_no > num_cpus::get() {
+                eprintln!("You are using too many threads. I will continue after a while.");
+                std::thread::sleep(std::time::Duration::from_secs(7));
+            }
+            jobs_no
+        },
+        None    => num_cpus::get(),
+    };
+    
     match is_a_tty {
         true  => {
             let datafile = get_read_file(&datafilename.unwrap().to_string());
-            run(blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, &datafile), &gpfilename, &tmpfoldername);
+            run(blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, &datafile), &gpfilename, &tmpfoldername, jobs_no);
         },
         false => {
             use std::io::Read;
@@ -187,7 +197,7 @@ fn main() {
                 .lock()
                 .read_to_string(&mut s)
                 .unwrap();
-            run(blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, s.as_bytes()), &gpfilename, &tmpfoldername);
+            run(blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, s.as_bytes()), &gpfilename, &tmpfoldername, jobs_no);
         },
     };
 }

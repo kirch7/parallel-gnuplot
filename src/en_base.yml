@@ -14,3 +14,18 @@ args:
       help: path to temporary folder
       required: false
       empty_values: false
+  - JOBS:
+      help: Amount of threads
+      short: j
+      long: jobs
+      required: false
+      multiple: false
+      value_name: JOBS
+      takes_value: true
+      empty_values: false
+  # - VERBOSE:
+  #     help: Level of verbosity
+  #     short: v
+  #     required: false
+  #     multiple: true
+  #     takes_value: false
