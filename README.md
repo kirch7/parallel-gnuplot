@@ -16,17 +16,18 @@ and `parallel-gnuplot` is <strong>not</strong> a modified version of `GNUPlot`.
 </ul>
 
 ### Usage
-`parallel-gnuplot datafilename gpfilename [tmpdirectory]`
+`parallel-gnuplot -d datafilename0 -d datafilename1 [-d ...] -g gpfilename`
 
 or
 
-`program_outputing_data | parallel-gnuplot gpfilename [tmpdirectory]`
+`program_outputing_data | parallel-gnuplot -g gpfilename`
 
 or
 
-`cargo run --release -- datafilename gpfilename [tmpdirectory]`
+`cargo run --release -- -d datafilename0 -d datafilename1 [-d ...] -g gpfilename`
 
-where `[tmpdirectory]` is optional.
+
+Use flag `-h` for more help.
 
 ### Example
 
@@ -61,15 +62,15 @@ set yrange [0:8]
 set key left top
 set output sprintf("%d", INDEX).'.png'
 
-plot DATAFILE with lp lw 2 pt 7 ps 3 title sprintf("Block %d", INDEX)
+plot DATAFILE0 with lp lw 2 pt 7 ps 3 title sprintf("Block %d", INDEX)
 ```
 
 You can call:
-  `parallel-gnuplot ./data.txt ./script.gp`
+  `parallel-gnuplot -d data.txt --g script.gp`
   or
-  `cargo run --release -- ./data.txt ./script.gp`
+  `cargo run --release -- -d data.txt -g script.gp`
   or something like
-  `cat ./data.txt | parallel-gnuplot ./script.gp`
+  `cat data.txt | parallel-gnuplot -g script.gp`
 
 ### Features
 <ul>

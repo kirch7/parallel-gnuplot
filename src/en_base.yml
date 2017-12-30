@@ -2,16 +2,29 @@ name: Parallel GNUPlot
 about: Calls the same GNUPlot script once for each data file block
 long-about: Parallel calls to GNUPlot. Calls the same GNUPlot script once for each data file block. Please, note `GNUPlot` has copyrights, and `parallel-gnuplot` is not a modified version of GNUPlot.
 args:
-  - DATA:
-      help: path to file containing the data
-      required: true
+  - DATAS:
+      help: paths to files containing the data
+      short: d
+      long: data
+      required: false
       empty_values: false
+      value_name: DATAS
+      takes_value: true
+      multiple: true
   - GNUPLOTSCRIPT:
       help: path to GNUPlot script file; if omitted GNUPLOT is not called and files are kept
+      short: g
+      long: gnuplot
+      value_name: GNUPLOTSCRIPT
+      takes_value: true
       required: false
       empty_values: false
   - TMPFOLDER:
       help: path to temporary folder
+      short: t
+      long: tmp
+      value_name: TMPFOLDER
+      takes_value: true
       required: false
       empty_values: false
   - JOBS:
@@ -42,5 +55,3 @@ args:
       required: false
       multiple: false
       takes_value: false
-      
-      

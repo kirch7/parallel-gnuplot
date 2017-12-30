@@ -1,7 +1,7 @@
 [package]
 name = "parallel-gnuplot"
-version = "0.1.7"
-authors = ["Cassio Kirch <cassiokirch@gmail.com>"]
+version = "0.2.0"
+authors = ["Cássio Kirch <cassiokirch@gmail.com>"]
 description = "Parallel calls to GNUPlot. Calls the same GNUPlot script once for each data file block."
 keywords = ["gnuplot", "parallel", "plot", "plotting"]
 categories = ["science", "command-line-utilities"]
@@ -10,18 +10,15 @@ homepage = "https://github.com/kirch7/parallel-gnuplot/blob/master/README.md"
 license = "GPL-3.0"
 readme = "README.md"
 repository = "https://github.com/kirch7/parallel-gnuplot"
-build = "src/build.rs"
-
-[build-dependencies]
-yaml-rust = "0.4.0"
-linked-hash-map = "0.5.0"
 
 [dependencies]
 blockcounter = "0.2.4"
-num_cpus = "1.7.0"
+num_cpus = "1.8.0"
 threadpool = "1.7.1"
-isatty = "0.1.6"
 clap = { version = "2.29.0", features = ["yaml"] }
+
+[target.'cfg(not(windows))'.dependencies]
+isatty = "0.1.6"
 
 [badges]
 travis-ci = { repository = "kirch7/parallel-gnuplot" }
