@@ -1,6 +1,6 @@
 [package]
 name = "parallel-gnuplot"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Cássio Kirch <cassiokirch@gmail.com>"]
 description = "Parallel calls to GNUPlot. Calls the same GNUPlot script once for each data file block."
 keywords = ["gnuplot", "parallel", "plot", "plotting"]
@@ -12,7 +12,7 @@ readme = "README.md"
 repository = "https://github.com/kirch7/parallel-gnuplot"
 
 [dependencies]
-blockcounter = "0.2.4"
+blockcounter = "0.3.0"
 num_cpus = "1.8.0"
 threadpool = "1.7.1"
 clap = { version = "2.29.0", features = ["yaml"] }

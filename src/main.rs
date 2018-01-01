@@ -71,18 +71,17 @@ fn is_gp_script_ok(gpfilename: &String) -> bool {
     ok
 }
 
-fn are_all_none(v: &Vec<Option<String>>) -> bool {
-    let mut some_some = false;
+fn are_n_none(v: &Vec<Option<String>>, stop_no: usize) -> bool {
+    let mut none_no = 0usize;
     for elem in v {
-        if elem.is_some() {
-            some_some = true;
-            break;
+        if elem.is_none() {
+            none_no += 1;
         }
     }
-    !some_some
+    none_no >= stop_no
 }
 
-fn run<S>(iters: &mut [blockcounter::Blocks<S>], gpfilename: &Option<String>, tmpfoldername: &String, jobs: usize, do_delete: bool)
+fn run<S>(iters: &mut [blockcounter::Blocks<S>], gpfilename: &Option<String>, tmpfoldername: &String, jobs: usize, do_delete: bool, mut index0: usize, stop_no: usize)
     where std::io::BufReader<S> : std::io::BufRead {
 
     use threadpool::ThreadPool;
@@ -92,7 +91,8 @@ fn run<S>(iters: &mut [blockcounter::Blocks<S>], gpfilename: &Option<String>, tm
 
     let iters_no = iters.len();
 
-    let mut count = 0usize;
+    let mut count = index0;
+    let mut continuous_count = 0usize;
     
     let mut do_delete = do_delete;
 
@@ -101,16 +101,19 @@ fn run<S>(iters: &mut [blockcounter::Blocks<S>], gpfilename: &Option<String>, tm
     loop {
         let mut strings: Vec<Option<String>> = Vec::new();
         for iters_index in 0..iters_no {
-            strings.push(iters[iters_index].nth(0));
+            strings.push(iters[iters_index].nth(index0));
         }
+        index0 = 0;
         let strings = strings;
-        if are_all_none(&strings) {
+        if are_n_none(&strings, stop_no) {
             break;
         }
         
         let tx = tx.clone();
         let index = count.clone();
         count += 1;
+        let continuous_index = continuous_count;
+        continuous_count += 1;
         let gpfilename = gpfilename.clone();
         let tmpfoldername = tmpfoldername.clone();
         
@@ -147,6 +150,7 @@ fn run<S>(iters: &mut [blockcounter::Blocks<S>], gpfilename: &Option<String>, tm
                 };
                 let _status = Command::new("gnuplot")
                     .args(&["-e", &format!("INDEX={}", index)])
+                    .args(&["-e", &format!("CONTINUOUSINDEX={}", continuous_index)])
                     .args(args.as_slice())
                     .args(&[&gpfilename])
                     .status()
@@ -254,7 +258,6 @@ fn main() {
     let do_delete = !args_matches
         .is_present("KEEPDATA");
 
-    println!("{:?}", args_matches.value_of("TMPFOLDER"));
     let tmpfoldername = match args_matches
         .value_of("TMPFOLDER") {
             Some(s) => s.to_string(),
@@ -295,15 +298,50 @@ fn main() {
         None    => num_cpus::get(),
     };
 
+    let index0: usize = match args_matches.value_of("INITIALINDEX") {
+        Some(n) => n.parse().unwrap(),
+        None    => 0,
+    };
+
+    let stop_files_no: usize = {
+        fn f(v: &Option<Vec<&str>>) -> usize {
+            match v {
+                &Some(ref v) => v.len(),
+                &None    => 1,
+            }
+        }
+            
+        match args_matches.value_of("STOP") {
+            None => f(&datafilename_vec),
+            Some(n) => {
+                let n = n.parse().unwrap();
+                if n == 0 {
+                    f(&datafilename_vec)
+                } else {
+                    n
+                }
+            }
+        }
+    };
+
+    let comments: Vec<String> = match args_matches.values_of("COMMENT") {
+        None    => Vec::new(),
+        Some(c) => c
+            .into_iter()
+            .map(|c| c.to_string())
+            .filter(|c| c != "")
+            .collect(),
+    };
+
     match is_a_tty {
         true  => {
             let mut iters: Vec<blockcounter::Blocks<File>> = datafilename_vec
                 .unwrap()
                 .iter()
                 .map(|datafilename| get_read_file(&datafilename.to_string()))
-                .map(|datafile| blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, datafile))
+                .map(|datafile| blockcounter::Blocks::new_with_comments(GNUPLOT_SEPARATOR_NO, datafile, &comments))
                 .collect();
-            run(&mut iters, &gpfilename, &tmpfoldername, jobs_no, do_delete);
+            run(&mut iters, &gpfilename, &tmpfoldername, jobs_no, do_delete, index0, stop_files_no);
         },
         false => {
             use std::io::Read;
@@ -313,8 +351,8 @@ fn main() {
                 .lock()
                 .read_to_string(&mut s)
                 .unwrap();
-            let mut v = vec![blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, s.as_bytes())];
-            run(&mut v, &gpfilename, &tmpfoldername, jobs_no, do_delete);
+            let mut v = vec![blockcounter::Blocks::new_with_comments(GNUPLOT_SEPARATOR_NO, s.as_bytes(), &comments)];
+            run(&mut v, &gpfilename, &tmpfoldername, jobs_no, do_delete, index0, stop_files_no);
         },
     };
 }

@@ -55,3 +55,28 @@ args:
       required: false
       multiple: false
       takes_value: false
+  - INITIALINDEX:
+      help: Default is 0
+      long: initial
+      required: false
+      multiple: false
+      takes_value: true
+      value_name: INITIALINDEX
+      empty_values: false
+  - STOP:
+      help: Stop when BLANK_NO files get to their last blocks (0 is all, which is default)
+      long: stop
+      short: s
+      required: false
+      multiple: false
+      takes_value: true
+      value_name: BLANK_NO
+      empty_values: false
+  - COMMENT:
+      help: Set of characters representing a single line comment
+      long: comment
+      required: false
+      multiple: true
+      takes_value: true
+      value_name: COMMENT
+      empty_values: false
