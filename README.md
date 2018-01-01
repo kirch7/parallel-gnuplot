@@ -11,7 +11,8 @@ and `parallel-gnuplot` is <strong>not</strong> a modified version of `GNUPlot`.
 ### GNUPlot variables
 `parallel-gnuplot` sets some `GNUPlot` variables:
 <ul>
-<li> <tt>INDEX</tt>: block index, starting at <tt>0</tt>; </li>
+<li> <tt>INDEX</tt>: block index, starting at <tt>0</tt> if -i or --initial were not set; </li>
+<li> <tt>CONTINUOUDINDEX</tt>: block index, starting at <tt>0</tt>; </li>
 <li> <tt>DATAFILE</tt>: path of a data file containing only a single block. </li>
 </ul>
 
