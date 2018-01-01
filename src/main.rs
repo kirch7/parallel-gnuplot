@@ -259,7 +259,6 @@ fn main() {
     let do_delete = !args_matches
         .is_present("KEEPDATA");
 
-    println!("{:?}", args_matches.value_of("TMPFOLDER"));
     let tmpfoldername = match args_matches
         .value_of("TMPFOLDER") {
             Some(s) => s.to_string(),
