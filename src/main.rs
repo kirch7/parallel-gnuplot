@@ -82,7 +82,7 @@ fn are_all_none(v: &Vec<Option<String>>) -> bool {
     !some_some
 }
 
-fn run<S>(iters: &mut [blockcounter::Blocks<S>], gpfilename: &Option<String>, tmpfoldername: &String, jobs: usize, do_delete: bool)
+fn run<S>(iters: &mut [blockcounter::Blocks<S>], gpfilename: &Option<String>, tmpfoldername: &String, jobs: usize, do_delete: bool, mut index0: usize)
     where std::io::BufReader<S> : std::io::BufRead {
 
     use threadpool::ThreadPool;
@@ -92,7 +92,8 @@ fn run<S>(iters: &mut [blockcounter::Blocks<S>], gpfilename: &Option<String>, tm
 
     let iters_no = iters.len();
 
-    let mut count = 0usize;
+    let mut count = index0;
+    let mut continuous_count = 0usize;
     
     let mut do_delete = do_delete;
 
@@ -101,8 +102,9 @@ fn run<S>(iters: &mut [blockcounter::Blocks<S>], gpfilename: &Option<String>, tm
     loop {
         let mut strings: Vec<Option<String>> = Vec::new();
         for iters_index in 0..iters_no {
-            strings.push(iters[iters_index].nth(0));
+            strings.push(iters[iters_index].nth(index0));
         }
+        index0 = 0;
         let strings = strings;
         if are_all_none(&strings) {
             break;
@@ -111,6 +113,8 @@ fn run<S>(iters: &mut [blockcounter::Blocks<S>], gpfilename: &Option<String>, tm
         let tx = tx.clone();
         let index = count.clone();
         count += 1;
+        let continuous_index = continuous_count;
+        continuous_count += 1;
         let gpfilename = gpfilename.clone();
         let tmpfoldername = tmpfoldername.clone();
         
@@ -147,6 +151,7 @@ fn run<S>(iters: &mut [blockcounter::Blocks<S>], gpfilename: &Option<String>, tm
                 };
                 let _status = Command::new("gnuplot")
                     .args(&["-e", &format!("INDEX={}", index)])
+                    .args(&["-e", &format!("CONTINUOUSINDEX={}", continuous_index)])
                     .args(args.as_slice())
                     .args(&[&gpfilename])
                     .status()
@@ -295,6 +300,11 @@ fn main() {
         None    => num_cpus::get(),
     };
 
+    let index0: usize = match args_matches.value_of("INITIALINDEX") {
+        Some(n) => n.parse().unwrap(),
+        None    => 0,
+    };
+
     match is_a_tty {
         true  => {
             let mut iters: Vec<blockcounter::Blocks<File>> = datafilename_vec
@@ -303,7 +313,7 @@ fn main() {
                 .map(|datafilename| get_read_file(&datafilename.to_string()))
                 .map(|datafile| blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, datafile))
                 .collect();
-            run(&mut iters, &gpfilename, &tmpfoldername, jobs_no, do_delete);
+            run(&mut iters, &gpfilename, &tmpfoldername, jobs_no, do_delete, index0);
         },
         false => {
             use std::io::Read;
@@ -314,7 +324,7 @@ fn main() {
                 .read_to_string(&mut s)
                 .unwrap();
             let mut v = vec![blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, s.as_bytes())];
-            run(&mut v, &gpfilename, &tmpfoldername, jobs_no, do_delete);
+            run(&mut v, &gpfilename, &tmpfoldername, jobs_no, do_delete, index0);
         },
     };
 }

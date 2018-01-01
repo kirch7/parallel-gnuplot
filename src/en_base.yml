@@ -55,3 +55,11 @@ args:
       required: false
       multiple: false
       takes_value: false
+  - INITIALINDEX:
+      help: Default is 0
+      long: initial
+      required: false
+      multiple: false
+      takes_value: true
+      value_name: INITIALINDEX
+      empty_values: false
