@@ -64,7 +64,7 @@ args:
       value_name: INITIALINDEX
       empty_values: false
   - STOP:
-      help: Stop when BLANK_NO files get to them last blocks (0 is all, which is default)
+      help: Stop when BLANK_NO files get to their last blocks (0 is all, which is default)
       long: stop
       short: s
       required: false
