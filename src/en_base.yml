@@ -72,3 +72,11 @@ args:
       takes_value: true
       value_name: BLANK_NO
       empty_values: false
+  - COMMENT:
+      help: Set of characters representing a single line comment
+      long: comment
+      required: false
+      multiple: true
+      takes_value: true
+      value_name: COMMENT
+      empty_values: false

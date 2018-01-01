@@ -323,14 +323,23 @@ fn main() {
             }
         }
     };
-    
+
+    let comments: Vec<String> = match args_matches.values_of("COMMENT") {
+        None    => Vec::new(),
+        Some(c) => c
+            .into_iter()
+            .map(|c| c.to_string())
+            .filter(|c| c != "")
+            .collect(),
+    };
+
     match is_a_tty {
         true  => {
             let mut iters: Vec<blockcounter::Blocks<File>> = datafilename_vec
                 .unwrap()
                 .iter()
                 .map(|datafilename| get_read_file(&datafilename.to_string()))
-                .map(|datafile| blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, datafile))
+                .map(|datafile| blockcounter::Blocks::new_with_comments(GNUPLOT_SEPARATOR_NO, datafile, &comments))
                 .collect();
             run(&mut iters, &gpfilename, &tmpfoldername, jobs_no, do_delete, index0, stop_files_no);
         },
@@ -342,7 +351,7 @@ fn main() {
                 .lock()
                 .read_to_string(&mut s)
                 .unwrap();
-            let mut v = vec![blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, s.as_bytes())];
+            let mut v = vec![blockcounter::Blocks::new_with_comments(GNUPLOT_SEPARATOR_NO, s.as_bytes(), &comments)];
             run(&mut v, &gpfilename, &tmpfoldername, jobs_no, do_delete, index0, stop_files_no);
         },
     };

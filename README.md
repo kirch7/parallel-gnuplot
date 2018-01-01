@@ -83,4 +83,5 @@ You can call:
   </ul>
   <li>Can receive data through pipe (since v0.1.5).</li>
   <li>Check vality of script (since v0.1.6).</li>
+  <li>Skip single line comments capability.</li>
 </Ul>
