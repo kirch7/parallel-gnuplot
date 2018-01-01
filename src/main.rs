@@ -71,18 +71,17 @@ fn is_gp_script_ok(gpfilename: &String) -> bool {
     ok
 }
 
-fn are_all_none(v: &Vec<Option<String>>) -> bool {
-    let mut some_some = false;
+fn are_n_none(v: &Vec<Option<String>>, stop_no: usize) -> bool {
+    let mut none_no = 0usize;
     for elem in v {
-        if elem.is_some() {
-            some_some = true;
-            break;
+        if elem.is_none() {
+            none_no += 1;
         }
     }
-    !some_some
+    none_no >= stop_no
 }
 
-fn run<S>(iters: &mut [blockcounter::Blocks<S>], gpfilename: &Option<String>, tmpfoldername: &String, jobs: usize, do_delete: bool, mut index0: usize)
+fn run<S>(iters: &mut [blockcounter::Blocks<S>], gpfilename: &Option<String>, tmpfoldername: &String, jobs: usize, do_delete: bool, mut index0: usize, stop_no: usize)
     where std::io::BufReader<S> : std::io::BufRead {
 
     use threadpool::ThreadPool;
@@ -106,7 +105,7 @@ fn run<S>(iters: &mut [blockcounter::Blocks<S>], gpfilename: &Option<String>, tm
         }
         index0 = 0;
         let strings = strings;
-        if are_all_none(&strings) {
+        if are_n_none(&strings, stop_no) {
             break;
         }
         
@@ -304,6 +303,27 @@ fn main() {
         None    => 0,
     };
 
+    let stop_files_no: usize = {
+        fn f(v: &Option<Vec<&str>>) -> usize {
+            match v {
+                &Some(ref v) => v.len(),
+                &None    => 1,
+            }
+        }
+            
+        match args_matches.value_of("STOP") {
+            None => f(&datafilename_vec),
+            Some(n) => {
+                let n = n.parse().unwrap();
+                if n == 0 {
+                    f(&datafilename_vec)
+                } else {
+                    n
+                }
+            }
+        }
+    };
+    
     match is_a_tty {
         true  => {
             let mut iters: Vec<blockcounter::Blocks<File>> = datafilename_vec
@@ -312,7 +332,7 @@ fn main() {
                 .map(|datafilename| get_read_file(&datafilename.to_string()))
                 .map(|datafile| blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, datafile))
                 .collect();
-            run(&mut iters, &gpfilename, &tmpfoldername, jobs_no, do_delete, index0);
+            run(&mut iters, &gpfilename, &tmpfoldername, jobs_no, do_delete, index0, stop_files_no);
         },
         false => {
             use std::io::Read;
@@ -323,7 +343,7 @@ fn main() {
                 .read_to_string(&mut s)
                 .unwrap();
             let mut v = vec![blockcounter::Blocks::new(GNUPLOT_SEPARATOR_NO, s.as_bytes())];
-            run(&mut v, &gpfilename, &tmpfoldername, jobs_no, do_delete, index0);
+            run(&mut v, &gpfilename, &tmpfoldername, jobs_no, do_delete, index0, stop_files_no);
         },
     };
 }

@@ -63,3 +63,12 @@ args:
       takes_value: true
       value_name: INITIALINDEX
       empty_values: false
+  - STOP:
+      help: Stop when BLANK_NO files get to them last blocks (0 is all, which is default)
+      long: stop
+      short: s
+      required: false
+      multiple: false
+      takes_value: true
+      value_name: BLANK_NO
+      empty_values: false
