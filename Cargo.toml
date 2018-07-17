@@ -51,10 +51,3 @@ debug = false
 lto = true
 debug-assertions = false
 codegen-units = 1
-
-[profile.doc]
-opt-level = 0
-debug = true
-lto = false
-debug-assertions = true
-codegen-units = 1
