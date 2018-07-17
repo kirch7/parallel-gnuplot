@@ -12,13 +12,13 @@ readme = "README.md"
 repository = "https://github.com/kirch7/parallel-gnuplot"
 
 [dependencies]
-blockcounter = "0.3.0"
+blockcounter = "0.3.2"
 num_cpus = "1.8.0"
 threadpool = "1.7.1"
 clap = { version = "2.29.0", features = ["yaml"] }
 
 [target.'cfg(not(windows))'.dependencies]
-isatty = "0.1.6"
+isatty = "0.1.8"
 
 [badges]
 travis-ci = { repository = "kirch7/parallel-gnuplot" }
