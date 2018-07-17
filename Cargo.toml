@@ -1,13 +1,13 @@
 [package]
 name = "parallel-gnuplot"
-version = "0.2.1"
-authors = ["Cássio Kirch <cassiokirch@gmail.com>"]
+version = "0.2.2"
+authors = ["Cássio Kirch <cassio@kirch7.com>"]
 description = "Parallel calls to GNUPlot. Calls the same GNUPlot script once for each data file block."
 keywords = ["gnuplot", "parallel", "plot", "plotting"]
 categories = ["science", "command-line-utilities"]
 documentation = "https://github.com/kirch7/parallel-gnuplot/blob/master/README.md"
 homepage = "https://github.com/kirch7/parallel-gnuplot/blob/master/README.md"
-license = "GPL-3.0"
+license = "MIT"
 readme = "README.md"
 repository = "https://github.com/kirch7/parallel-gnuplot"
 
